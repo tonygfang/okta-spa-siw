@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Okta Widget Testing</title>
+
+    <script src="https://global.oktacdn.com/okta-signin-widget/5.16.0/js/okta-sign-in.min.js" type="text/javascript" ></script>
+    <link href="https://global.oktacdn.com/okta-signin-widget/5.16.0/css/okta-sign-in.min.css" type="text/css" rel="stylesheet" />
+
+    <link href="https://www.cwbank.com/Assets/CWB/okta/1.1/okta_cwb_styles_left_justify.css" type="text/css" rel="stylesheet" />
+    <link href="https://www.cwbank.com/Assets/CWB/okta/1.1/okta_cwb_styles_colours.css" type="text/css" rel="stylesheet" />
+    <!--link href="okta_cwb_styles_colours.css" type="text/css" rel="stylesheet" /-->
+    
+    <link href="https://www.cwbank.com/Assets/CWB/okta/1.1/okta_cwb_styles_hide_email_recovery.css" type="text/css" rel="stylesheet" />
+    <link href="https://www.cwbank.com/Assets/CWB/okta/1.1/okta_cwb_styles_mfa.css" type="text/css" rel="stylesheet" />
+
+    <link href="myapp.css" type="text/css" rel="stylesheet" />
+
+  </head>
+
+  <body>
+    <header>
+      <h2 class="centered">
+        Okta Widget
+      </h2>
+      <div class="centered small-text">
+        When authentication succeeds, the Okta Widget should no longer be
+        visible.
+        <br />
+        Hint: Check the developer console for token logging.
+      </div>
+    </header>
+
+    <section>
+      <div id="widget-container"></div>
+      <div id="welcomeMsg" class="hidden"></div>
+      <div id="resultMsg" class="hidden"></div>
+
+      <div id="logoutButton" class="hidden">
+        <div class="centered">
+          <input type="button" value="Logout" onclick="onlogout()" />
+        </div>
+      </div>
+    </section>
+
+    <script>
+      function onlogout() {
+        // signIn.authClient.signOut();
+        signIn.authClient.signOut({ postLogoutRedirectUri: redirectUri });
+      }
+
+      function showWelcomeMsg(idToken) {
+        welcomeText =
+          "Welcome " +
+          idToken.claims.name +
+          "!\n" +
+          "\nuserid: " +
+          idToken.claims.sub +
+          "\nusername: " +
+          idToken.claims.preferred_username +
+          "\nemail: " +
+          idToken.claims.email +
+          "\nCIF: " +
+          idToken.claims.CIF +
+          "\nPAN: " +
+          idToken.claims.PAN;
+
+        console.log(welcomeText);
+
+        welcomeMsg.innerText = welcomeText;
+        welcomeMsg.classList.remove("hidden");
+
+        resultText =
+          "Authentication succeeded, tokens have been logged in the developer console.";
+
+        resultMsg.innerText = resultText;
+        resultMsg.classList.remove("hidden");
+      }
+
+      function showLogoutButton() {
+        logoutButton.classList.remove("hidden");
+      }
+
+      /** Okta widget variables **/
+      var redirectUri = "https://chip-ubiquitous-radius.glitch.me/index_cwb_sit.html";
+      var baseUrl = "https://customer-sit.cwbankgroup.com";
+      var clientId = "0oahdjomxYEUVOVyi1d6"; // SPA
+      var authServerId = "ausgz4jlzfrh4h2Si1d6";
+
+      var issuer = baseUrl + "/oauth2/" + authServerId;
+
+      const signIn = new OktaSignIn({
+        el: "#widget-container",
+        baseUrl: baseUrl,
+        clientId: clientId,
+        redirectUri: redirectUri,
+        logo: "https://i.ibb.co/wpCY1Qg/cwb-logo.png",
+        // helpSupportNumber: "(123) 456-7890",
+        authParams: {
+          issuer: issuer,
+          scopes: ["openid", "email", "profile"]
+        },
+        features: {
+          rememberMe: false,
+          smsRecovery: true,
+          callRecovery: true,
+          idpDiscovery: true,
+          //passwordlessAuth: true,
+          selfServiceUnlock: true,
+          autoPush: true,
+          multiOptionalFactorEnroll: true,
+          webauthn: true
+        },
+
+        i18n: {
+          en: {
+            "primaryauth.title": "Welcome to CWB",
+            "primaryauth.submit": "Login",
+            needhelp: "Can't Login?",
+            goback: "Back to Login",
+            // forgotpassword: "Forgot Password? Link to CWB helpdesk...",
+            "oform.errorbanner.title":
+              "We found some errors. Please review and try again.",
+            "factor.password": " ",
+            "mfa.backToFactors": "Back to authentication methods",
+            "password.forgot.question.title": "Answer your security question",
+            "primaryauth.username.tooltip":
+              "Enter your username (or if applicable, the last 8 digits of your Debit Card or PAN)",
+
+            "errors.E0000004": "Password is incorrect",
+
+            "signout": "Back to Log In",
+            "password.newPassword.placeholder": "New password",
+            "password.newPassword.tooltip": " ",
+            "password.confirmPassword.placeholder": "Repeat new password",
+            "password.confirmPassword.tooltip": " ",
+
+            "password.complexity.requirements.header": "Password Rules:",
+            "password.complexity.length.description": "The password must be between {0} and 72 characters.",
+            "password.complexity.lowercase.description": "Must contain at least one lowercase letter.",
+            "password.complexity.uppercase.description": "Must contain at least one uppercase letter.",
+            "password.complexity.number.description": "Must contain a number (0-9).",
+            "password.complexity.symbol.description": "Must contain a symbol (e.g.!@#$%^&*).",
+            "password.complexity.no_username.description": "Cannot include any part of your username.",
+            "password.complexity.no_first_name.description": "Cannot include your first name.",
+            "password.complexity.no_last_name.description": "Cannot include your last name.",
+            "password.complexity.history.description": "Your password cannot be any of your last {0} passwords.",
+ 
+          }
+        },
+        // username: "abc123",
+        // recoveryToken: "dfpDzFzGFj22VklvtMvC",
+
+        // An example that overrides all help links, and sets two custom links
+        helpLinks: {
+          help:
+            "https://direct.cwbank.com/MDContent/HelpTopic?usecase=Logon&step=Step1"
+        },
+
+      });
+
+      signIn
+        .showSignInToGetTokens({
+          clientId: clientId,
+          scopes: ["openid", "email", "profile"],
+          redirectUri: redirectUri
+        })
+        .then(function(tokens) {
+          let accessToken = tokens.accessToken;
+          let idToken = tokens.idToken;
+
+          console.log("Access Token: ", accessToken);
+          console.log("ID Token: ", idToken);
+
+          // Authentication occurred
+          if (tokens !== undefined) {
+            // Hide the widget and show logged in message
+            signIn.hide();
+            showWelcomeMsg(idToken);
+            showLogoutButton();
+          }
+        })
+        .catch(function(err) {
+          console.log("An authentication error occurred: %o", err);
+        });
+
+      signIn.on("afterRender", function(context) {
+        if (context.controller === "mfa-verify") {
+          // Auto send sms voice
+          // console.log(context.controller);
+          button = jQueryCourage("a.call-request-button, a.sms-request-button");
+          // console.log(button.text());
+
+          if (button.text() === 'Send code' || button.text() === 'Call') {
+            button.click();
+          }
+        } 
+       
+      });
+
+      // Override error messages that cannot be done with i18n
+      signIn.on("afterError", function(context, error) {
+        errmsg = jQueryCourage("div.o-form-content.o-form-theme.clearfix > div.o-form-error-container.o-form-has-errors > div > div > p");
+
+        if (errmsg.text() === "The resource owner or authorization server denied the request.") {
+          errmsg.text("Your profile was suspended. Contact us for further information.");
+        } else if (errmsg.text() === "Your token doesn't match our records. Please try again.") {
+           errmsg.text("Your code doesn't match our records. Please try again.");
+        } else if (errmsg.text().startsWith("Password requirements were not met. Password requirements: ")) {
+          errmsg.text("Password rules were not met.");
+        }
+      });
+      
+      
+      
+    </script>
+  </body>
+</html>

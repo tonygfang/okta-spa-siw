@@ -1,0 +1,38 @@
+/** This style sheet left-justifies the Widget logo and header **/
+
+#okta-sign-in .o-form-head, 
+#okta-sign-in .o-form-head+.o-form-explain {
+  text-align: left;
+}
+
+/** The container had a large padding on the “left” side, 90px **/
+#okta-sign-in .auth-header {
+  text-align: left;
+  padding-left: 42px;
+  padding-right: 42px;
+}
+
+/** The image has a “margin” style that is centering it within the container **/
+#okta-sign-in .auth-org-logo {
+  margin: 0;
+}
+
+/** Center "auth-header" with a maximum width on small screens **/
+@media only screen and (max-width: 600px) {
+  #okta-sign-in .auth-header {
+    margin: 0 auto;
+    width: 316px;
+  }
+}
+
+/** Lower the padding for "auth-header" on extra-small screens **/
+@media only screen and (max-width: 350px) {
+  #okta-sign-in .auth-header {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+}
+
+#okta-sign-in .auth-footer .goto {
+    float: left;
+}

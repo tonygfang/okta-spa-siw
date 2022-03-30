@@ -1,0 +1,5 @@
+/** Hide help link **/
+.js-help-link
+{
+  display: none !important;
+}

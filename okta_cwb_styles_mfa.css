@@ -1,0 +1,46 @@
+/** This style sheet re-aligns MFA SMS components **/
+
+/** mfa-verify-passcode used by SMS/Voice MFA **/
+form.mfa-verify-passcode div.o-form-content div.o-form-fieldset-container {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+#okta-sign-in .mfa-verify-passcode .auth-passcode {
+  order: 2;
+  width: 100%;
+  margin-top: 10px;
+  margin-bottom: 0;
+}
+
+#okta-sign-in .call-request-button.link-button, #okta-sign-in .sms-request-button.link-button {
+  order: 1;
+  width: 100%;
+}
+
+form.mfa-verify-passcode > div.o-form-content.o-form-theme.clearfix > div.o-form-fieldset-container > div:nth-of-type(2) {
+  order: 3;
+}
+
+#okta-sign-in .mfa-verify-passcode .link-button {
+  margin-top: 0;
+}
+
+/** recovery-challenge used by SMS/Voice forgot pw/unlock **/
+form.recovery-challenge div.o-form-content div.o-form-fieldset-container {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+#okta-sign-in .recovery-challenge .o-form-fieldset.enroll-sms-phone {
+  order: 2;
+  width: 100%;
+  margin-top: 10px;
+  margin-bottom: 0;
+}
+
+#okta-sign-in.auth-container.main-container .sms-request-button.margin-top-30
+ {
+  margin-left: 0;
+  margin-top: 0;
+}

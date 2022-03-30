@@ -1,0 +1,53 @@
+#resultMsg {
+  border: 1px solid black;
+  border-radius: 6px;
+  background: #cfc;
+  max-width: 300px;
+  margin: 20px auto;
+  padding: 20px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+#welcomeMsg {
+  border: 2px solid black;
+  border-radius: 6px;
+/*   background: #cfc; */
+  max-width: 300px;
+  margin: 20px auto;
+  padding: 20px;
+/*   box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); */
+}
+
+#tokenArea {
+  margin: 10px auto;
+}
+
+#buttonArea {
+  margin: 10px auto;
+}
+
+.hidden {
+  display: none;
+}
+
+.centered {
+  margin: 20px auto;
+  width: 100%;
+  text-align: center;
+}
+
+.small-text {
+  font-size: 12pt;
+}
+
+a {
+  color: #5a5a5a;
+  text-decoration: none;
+  display: block;
+}
+
+a:hover {
+  color: #000;
+  text-decoration: underline;
+}
+
