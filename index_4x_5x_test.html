@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Okta Widget Testing</title>
+
+    <style>
+      #resultMsg {
+        border: 1px solid black;
+        border-radius: 6px;
+        background: #cfc;
+        max-width: 300px;
+        margin: 20px auto;
+        padding: 20px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      .centered {
+        margin: 20px auto;
+        width: 100%;
+        text-align: center;
+      }
+
+      .small-text {
+        font-size: 10pt;
+      }
+
+      a {
+        color: #5a5a5a;
+        text-decoration: none;
+        display: block;
+      }
+
+      a:hover {
+        color: #000;
+        text-decoration: underline;
+      }
+    </style>
+
+    <style id="override">
+      #okta-sign-in .o-form-head {
+        text-align: left;
+      }
+
+      /** The container had a large padding on the “left” side, 90px **/
+      #okta-sign-in .auth-header {
+        text-align: left;
+        padding-left: 42px;
+        padding-right: 42px;
+      }
+
+      /** The image has a “margin” style that is centering it within the container **/
+      #okta-sign-in .auth-org-logo {
+        margin: 0;
+      }
+
+      /** Center "auth-header" with a maximum width on small screens **/
+      @media only screen and (max-width: 600px) {
+        #okta-sign-in .auth-header {
+          margin: 0 auto;
+          width: 316px;
+        }
+      }
+
+      /** Lower the padding for "auth-header" on extra-small screens **/
+      @media only screen and (max-width: 350px) {
+        #okta-sign-in .auth-header {
+          padding-left: 20px;
+          padding-right: 20px;
+        }
+      }
+    </style>
+
+    <style id="override1">
+      #okta-sign-in.auth-container .o-form label {
+        font-size: 15px;
+        color: #646464;
+      }
+
+      #okta-sign-in.auth-container .okta-form-input-field {
+        border: 1px solid #ddd;
+        border-radius: 4px;
+      }
+
+      #okta-sign-in.auth-container input[type="submit"] {
+        color: #ffffff;
+        font-size: 18px;
+      }
+
+      #okta-sign-in.auth-container .link:link,
+      #okta-sign-in.auth-container .link:visited {
+        font-size: 17px;
+        color: #008292;
+      }
+
+      #okta-sign-in.auth-container .button,
+      #okta-sign-in.auth-container .button-primary:active,
+      #okta-sign-in.auth-container input[type="submit"]:focus {
+        background: #008292;
+        border-radius: 4px;
+      }
+
+      #okta-sign-in.auth-container .button-primary:hover {
+        background: #008292;
+        opacity: 0.8;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h2 class="centered">
+        TechJutsu Okta Widget: <span id="widgetVersionMsg"></span>
+      </h2>
+      <div class="centered small-text">
+        When authentication succeeds, the Okta Widget should no longer be
+        visible.
+        <br />
+        Hint: Check the developer console for token logging.
+      </div>
+
+      <div class="centered">
+        <a href="?version=v4.5.2">Try the Okta Widget v4.5.2</a>
+        <a href="?version=v5.2.1">Try the Okta Widget v5.2.1</a>
+      </div>
+    </header>
+
+    <section>
+      <div id="sign-in-widget"></div>
+      <div id="resultMsg" class="hidden"></div>
+    </section>
+
+    <script>
+      /** Main variable(s) **/
+      let demoInitialized = false;
+      const resultMsg = document.getElementById("resultMsg");
+      const msg =
+        "Authentication succeeded, tokens have been logged in the developer console.";
+
+      /** Okta widget variables **/
+      var redirectUri = "https://chip-ubiquitous-radius.glitch.me/index_4x_5x_test.html";
+      var baseUrl = "https://dev-454232.oktapreview.com";
+      var authServerId = "austsoanldMRLfbmD0h7";
+      var issuer = baseUrl + "/oauth2/" + authServerId;
+      var clientId = "0oausx241oRsvlAyZ0h7"; // SPA
+
+      var config = {
+        el: "#sign-in-widget",
+        baseUrl: baseUrl,
+        clientId: clientId,
+        redirectUri: redirectUri,
+        logo: "https://i.ibb.co/wpCY1Qg/cwb-logo.png",
+        authParams: {
+          issuer: issuer
+        },
+        features: {
+          rememberMe: false,
+          //idpDiscovery: true,
+          //passwordlessAuth: true,
+          selfServiceUnlock: false,
+          autoPush: true,
+          multiOptionalFactorEnroll: true,
+          webauthn: true
+        },
+        i18n: {
+          en: {
+            "primaryauth.title": "Welcome to CWB",
+            "primaryauth.submit": "Log In",
+            needhelp: "Can't Log In?"
+          }
+        },
+        //username: "abc123"
+        recoveryToken: ""
+      };
+
+      /* Function to dynamically add the required Okta Widget assets by version */
+      function addOktaWidgetAssets(version, resolve, reject) {
+        let scriptObj = document.createElement("script");
+        let styleObj = document.createElement("link");
+        styleObj.rel = "stylesheet";
+        styleObj.type = "text/css";
+
+        scriptObj.onload = function() {
+          resolve(version);
+        };
+        scriptObj.onerror = function() {
+          reject("Okta Widget asset failed to load.");
+        };
+
+        switch (version) {
+          case "v4.5.2":
+            scriptObj.src =
+              "https://global.oktacdn.com/okta-signin-widget/4.5.2/js/okta-sign-in.min.js";
+            styleObj.href =
+              "https://global.oktacdn.com/okta-signin-widget/4.5.2/css/okta-sign-in.min.css";
+            break;
+          case "v5.2.1":
+            scriptObj.src =
+              "https://global.oktacdn.com/okta-signin-widget/5.2.1/js/okta-sign-in.min.js";
+            styleObj.href =
+              "https://global.oktacdn.com/okta-signin-widget/5.2.1/css/okta-sign-in.min.css";
+        }
+        // Append styles above the "overrides"
+        const override = document.getElementById("override");
+        document.head.insertBefore(styleObj, override);
+
+        // Add the asset to the page
+        document.body.appendChild(scriptObj);
+        // document.body.appendChild(styleObj);
+      }
+
+      let initialize = new Promise((resolve, reject) => {
+        // Don't re-initialize
+        if (demoInitialized) {
+          reject("Demo already initialized.");
+        }
+
+        // Retrieve the version from the URL
+        params = new URLSearchParams(window.location.search);
+        let version = params.get("version");
+        let code = params.get("code");
+
+        // Default to v5.2.1
+        if (!version && !code) {
+          version = "v5.2.1";
+        } else if (!version && code) {
+          version = "v4.5.2";
+        } else if (version !== "v4.5.2" && version !== "v5.2.1") {
+          reject(`Unsupported version of the Okta Widget: "${version}"`);
+        }
+
+        // Show the version in the header and console
+        let oktaVersionMsg = document.getElementById("widgetVersionMsg");
+        if (oktaVersionMsg) {
+          oktaVersionMsg.innerText = version;
+        }
+        console.log(
+          "%c This demo is using the Okta Widget %s",
+          "font-size: 16pt;",
+          version
+        );
+
+        demoInitialized = true;
+        addOktaWidgetAssets(version, resolve);
+      });
+
+      /** Determine which Okta Widget Version to DEMO and load it **/
+      function renderOktaWidget(version) {
+        if (version === "v4.5.2") {
+          /** Okta Widget v4.5.2 code START **/
+          let widget = new OktaSignIn(config);
+
+          if (!widget.hasTokensInUrl()) {
+            // Check for access error
+            params = new URLSearchParams(window.location.search);
+            error = params.get("error");
+            if (error && error === "access_denied") {
+              desc = params.get("error_description");
+
+              resultMsg.innerText =
+                desc || "Unknown error, please check configuration or console.";
+              resultMsg.classList.remove("hidden");
+            }
+
+            widget.showSignInToGetTokens({
+              clientId: clientId,
+              //redirectUri: redirectUri,
+              getAccessToken: true,
+              getIdToken: true,
+              scope: "openid email profile"
+            });
+            
+            console.log("zzz");
+            
+          } else {
+            console.log("qqq else...");
+            
+            // Process the redirect and authorization code
+            widget.authClient.token.parseFromUrl().then(function(res) {
+              let accessToken = res.tokens.accessToken;
+              let idToken = res.tokens.idToken;
+
+              console.log("Access Token: ", accessToken);
+              console.log("ID Token: ", idToken);
+
+              widget.authClient.tokenManager.add("idToken", idToken);
+              widget.authClient.tokenManager.add("accessToken", accessToken);
+
+              // Hide the widget and show logged in message
+              widget.hide();
+
+              resultMsg.innerText = msg;
+              resultMsg.classList.remove("hidden");
+            });
+          }
+          /** Okta Widget v4.5.2 code END **/
+        } else if (version === "v5.2.1") {
+          /** Okta Widget v5.2.1 code START **/
+
+          // let widget = new OktaSignIn({
+          //   el: "#sign-in-widget",
+          //   baseUrl: "https://techjutsu.okta.com",
+          //   recoveryToken: ''
+          // });
+
+          let widget = new OktaSignIn(config);
+
+          widget.renderEl({ el: "#sign-in-widget" }, function success(res) {
+            if (res.status && res.status == "FORGOT_PASSWORD_EMAIL_SENT") {
+              console.log("Email sent...proceed with login flow.");
+              return;
+            }
+
+            if (res.tokens && res.tokens.accessToken) {
+              widget.hide();
+
+              let accessToken = res.tokens.accessToken;
+              let idToken = res.tokens.idToken;
+
+              console.log("Access Token: ", accessToken);
+              console.log("ID Token: ", idToken);
+
+              resultMsg.innerText = msg;
+              resultMsg.classList.remove("hidden");
+            } else {
+              resultMsg.innerText = "No tokens? An error may have occurred?";
+              resultMsg.classList.remove("hidden");
+            }
+          });
+
+          /** Disabled the following flow due to bug in "Forgot Password" flow that **/
+          /** prevents further authentication without reloading the page. **/
+
+          //           widget.showSignInToGetTokens({
+          //               clientId: "0oa1pjd6e1ifvqYVd4x7",
+          //               scopes: ["openid", "email", "profile"],
+          //               redirectUri: "https://blossom-pretty-salamander.glitch.me/"
+          //             })
+          //             .then(function(tokens) {
+          //               let accessToken = tokens.accessToken;
+          //               let idToken = tokens.idToken;
+
+          //               console.log("Access Token: ", accessToken);
+          //               console.log("ID Token: ", idToken);
+
+          //               // Authentication occurred
+          //               if (tokens !== undefined) {
+          //                 // Hide the widget and show logged in message
+          //                 widget.hide();
+
+          //                 resultMsg.innerText = msg;
+          //                 resultMsg.classList.remove("hidden");
+          //               }
+          //             })
+          //             .catch(function(err) {
+          //               console.log("An authentication error occurred: %o", err);
+          //             });
+          /** Okta Widget v5.2.1 code END **/
+        }
+      }
+
+      // Initialize the page (with assets and widget)
+      initialize
+        .then(version => {
+          renderOktaWidget(version);
+        })
+        .catch(err => {
+          resultMsg.innerText = err;
+          resultMsg.classList.remove("hidden");
+        });
+    </script>
+  </body>
+</html>

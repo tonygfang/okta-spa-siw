@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Okta OIE Widget Testing</title>
+
+    <script
+      src="https://global.oktacdn.com/okta-signin-widget/5.6.1/js/okta-sign-in.min.js"
+      type="text/javascript"
+    ></script>
+    <link
+      href="https://global.oktacdn.com/okta-signin-widget/5.6.1/css/okta-sign-in.min.css"
+      type="text/css"
+      rel="stylesheet"
+    />
+
+    <link href="https://www.cwbank.com/Assets/CWB/okta/okta_cwb_styles_left_justify.css" type="text/css" rel="stylesheet" />
+    <link href="https://www.cwbank.com/Assets/CWB/okta/okta_cwb_styles_colours.css" type="text/css" rel="stylesheet" />
+    <link href="myapp.css" type="text/css" rel="stylesheet" />
+  </head>
+
+  <body>
+    <header>
+      <h2 class="centered">
+        Okta OIE Widget
+      </h2>
+      <div class="centered small-text">
+        When authentication succeeds, the Okta Widget should no longer be
+        visible.
+        <br />
+        Hint: Check the developer console for token logging.
+      </div>
+    </header>
+
+    <section>
+      <div id="widget-container"></div>
+      <div id="welcomeMsg" class="hidden"></div>
+      <div id="resultMsg" class="hidden"></div>
+
+      <div id="logoutButton" class="hidden">
+        <div class="centered">
+          <input type="button" value="Logout" onclick="onlogout()" />
+        </div>
+      </div>
+    </section>
+
+    <script>
+      function onlogout() {
+        // signIn.authClient.signOut();
+        signIn.authClient.signOut({ postLogoutRedirectUri: redirectUri });
+      }
+
+      function showWelcomeMsg(idToken) {
+        welcomeText =
+          "Welcome " +
+          idToken.claims.name +
+          "!\n" +
+          "\nuserid: " +
+          idToken.claims.sub +
+          "\nusername: " +
+          idToken.claims.preferred_username +
+          "\nemail: " +
+          idToken.claims.email +
+          "\nCIF: " +
+          idToken.claims.CIF +
+          "\nPAN: " +
+          idToken.claims.PAN;
+
+        console.log(welcomeText);
+
+        welcomeMsg.innerText = welcomeText;
+        welcomeMsg.classList.remove("hidden");
+
+        resultText =
+          "Authentication succeeded, tokens have been logged in the developer console.";
+
+        resultMsg.innerText = resultText;
+        resultMsg.classList.remove("hidden");
+      }
+
+      function showLogoutButton() {
+        logoutButton.classList.remove("hidden");
+      }
+
+      /** Okta widget variables **/
+      var redirectUri =
+        "https://chip-ubiquitous-radius.glitch.me/index_tony_oietiger151.html";
+      //var redirectUri = "http://httpbin.org/get";
+      //var redirectUri = "http://httpbin.org/post";
+      //var redirectUri = "https://oidcdebugger.com/debug";
+
+      var baseUrl = "https://oietiger151.oktapreview.com";
+      var clientId = "0oayx0zbtl7vMi64S0h7"; // SPA
+      var authServerId = "default";
+
+      var issuer = baseUrl + "/oauth2/" + authServerId;
+
+
+      signIn = new OktaSignIn({
+        // el: "#widget-container",
+        baseUrl: baseUrl,
+        clientId: clientId,
+        redirectUri: redirectUri,
+        logo: "https://i.ibb.co/wpCY1Qg/cwb-logo.png",
+        // helpSupportNumber: "(123) 456-7890",
+        useInteractionCodeFlow: true,
+        authParams: {
+          issuer: issuer,
+          scopes: ["openid", "email", "profile"]
+        },
+        // features: {
+        // rememberMe: false,
+        //idpDiscovery: true,
+        // passwordlessAuth: true,
+        // selfServiceUnlock: true,
+        // autoPush: true,
+        // multiOptionalFactorEnroll: true,
+        // webauthn: true
+        // },
+
+        i18n: {
+          en: {
+            "primaryauth.title": "Welcome to CWB",
+            "primaryauth.submit": "Login",
+            needhelp: "Can't Login?",
+            goback: "Back to Login",
+            backToSignin: "Back to Login",
+            // forgotpassword: "Forgot Password? Link to CWB helpdesk...",
+            "oform.errorbanner.title":
+              "We found some errors. Please review and try again.",
+            "factor.password": " ",
+            "mfa.backToFactors": "Back to authentication methods"
+          }
+        }
+        // username: "abc123",
+        // recoveryToken: "dfpDzFzGFj22VklvtMvC",
+
+        // An example that overrides all help links, and sets two custom links
+        // helpLinks: {
+        //   help:
+        //     "https://direct.cwbank.com/MDContent/HelpTopic?usecase=Logon&step=Step1"
+        // },
+      });
+
+      signIn
+        .showSignInToGetTokens({
+          el: "#widget-container"
+          // clientId: clientId,
+          // scopes: ["openid", "email", "profile"],
+          // redirectUri: redirectUri
+        })
+        .then(function(tokens) {
+          let accessToken = tokens.accessToken;
+          let idToken = tokens.idToken;
+
+          console.log("Access Token: ", accessToken);
+          console.log("ID Token: ", idToken);
+
+          // Authentication occurred
+          if (tokens !== undefined) {
+            // Hide the widget and show logged in message
+            signIn.hide();
+
+            showWelcomeMsg(idToken);
+            showLogoutButton();
+          }
+        })
+        .catch(function(err) {
+          console.log("An authentication error occurred: %o", err);
+        });
+    </script>
+  </body>
+</html>

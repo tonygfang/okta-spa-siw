@@ -1,0 +1,40 @@
+/** This style sheet applies TechJutsu colours and styles **/
+
+#okta-sign-in.auth-container .o-form label {
+  /*font-size: 15px;*/
+  color: #646464;
+}
+
+/*
+#okta-sign-in.auth-container .okta-form-input-field {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+*/
+
+/*
+#okta-sign-in.auth-container .link:link,
+#okta-sign-in.auth-container .link:visited {
+  font-size: 17px;
+  color: #008292;
+}
+*/
+
+#okta-sign-in.auth-container .button,
+#okta-sign-in.auth-container .button-primary:active,
+#okta-sign-in.auth-container input[type="submit"],
+#okta-sign-in.auth-container input[type="submit"]:focus {
+  /*font-size: 18px;*/
+  color: #ffffff;
+  background: #008292;
+  border-color: #008292;
+  /*border-radius: 4px;*/
+}
+
+#okta-sign-in.auth-container .button.button-primary.link-button-disabled,
+#okta-sign-in.auth-container .button:hover,
+#okta-sign-in.auth-container .button-primary:hover {
+  background: #008292;
+  border-color: #008292;
+  opacity: 0.8;
+}

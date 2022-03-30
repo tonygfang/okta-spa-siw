@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Okta Widget Testing</title>
+
+    <script
+      src="https://global.oktacdn.com/okta-signin-widget/5.7.1/js/okta-sign-in.min.js"
+      type="text/javascript"
+    ></script>
+    <link
+      href="https://global.oktacdn.com/okta-signin-widget/5.7.1/css/okta-sign-in.min.css"
+      type="text/css"
+      rel="stylesheet"
+    />
+
+    <link
+      href="https://www.cwbank.com/Assets/CWB/okta/okta_cwb_styles_left_justify.css"
+      type="text/css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://www.cwbank.com/Assets/CWB/okta/okta_cwb_styles_colours.css"
+      type="text/css"
+      rel="stylesheet"
+    />
+    
+    <!--link href="okta_cwb_styles_colours.css" type="text/css" rel="stylesheet" /-->
+
+    <link
+      href="https://www.cwbank.com/Assets/CWB/okta/okta_cwb_styles_hide_account_recovery.css"
+      type="text/css"
+      rel="stylesheet"
+    />
+
+    <!-- <link href="https://www.cwbank.com/Assets/CWB/okta/okta_cwb_styles_hide_email_recovery.css" type="text/css" rel="stylesheet" /> -->
+
+    <link href="myapp.css" type="text/css" rel="stylesheet" />
+  </head>
+
+  <body>
+    <header>
+      <h2 class="centered">
+        Okta Widget
+      </h2>
+      <div class="centered small-text">
+        When authentication succeeds, the Okta Widget should no longer be
+        visible.
+        <br />
+        Hint: Check the developer console for token logging.
+      </div>
+    </header>
+
+    <section>
+      <div id="widget-container"></div>
+      <div id="welcomeMsg" class="hidden"></div>
+      <div id="resultMsg" class="hidden"></div>
+    </section>
+
+    <script>
+      const msg =
+        "Authentication succeeded, tokens have been logged in the developer console.";
+
+      function renderOktaWidget() {
+        /** Okta widget variables **/
+        var redirectUri = "https://chip-ubiquitous-radius.glitch.me";
+        //var redirectUri = "http://httpbin.org/get";
+        //var redirectUri = "http://httpbin.org/post";
+        //var redirectUri = "https://oidcdebugger.com/debug";
+
+        var baseUrl = "https://customer-dev.cwbankgroup.com";
+        var clientId = "0oawh6oinzSUyYOYa0h7"; // SPA
+        var authServerId = "austor3jdoL002yED0h7";
+
+        // var baseUrl = "https://login-sit.cwb.com";
+        // var clientId = "0oahdjomxYEUVOVyi1d6"; // SPA
+        // var authServerId = "ausgz4jlzfrh4h2Si1d6";
+
+        var issuer = baseUrl + "/oauth2/" + authServerId;
+
+        // var responseMode = "fragment"; // use fragment for glitch static html app
+        // var responseMode = "form_post"; // can use form_post for redirect to oidcdebugger
+
+        // var requestContext =
+        //   "/oauth2/" +
+        //   authServerId +
+        //   "/v1/authorize?client_id=" +
+        //   clientId +
+        //   "&response_type=token id_token&response_mode=" +
+        //   responseMode +
+        //   "&scope=openid&redirect_uri=" +
+        //   redirectUri +
+        //   "&state=abcd123&nonce=xyz456";
+
+        //console.log("requestContext: " + requestContext);
+
+        const signIn = new OktaSignIn({
+          el: "#widget-container",
+          baseUrl: baseUrl,
+          clientId: clientId,
+          redirectUri: redirectUri,
+          logo: "https://i.ibb.co/wpCY1Qg/cwb-logo.png",
+          // helpSupportNumber: "(123) 456-7890",
+          authParams: {
+            issuer: issuer,
+            //authorizeUrl: issuer + "/oauth2/v1/authorize",
+            //display: "page",
+            //responseType: ["id_token"],
+            //responseMode: responseMode,
+            scopes: ["openid", "profile"]
+          },
+          features: {
+            rememberMe: false,
+            //idpDiscovery: true,
+            passwordlessAuth: true,
+            selfServiceUnlock: false,
+            autoPush: true,
+            multiOptionalFactorEnroll: true,
+            webauthn: true
+          },
+
+          i18n: {
+            en: {
+              "primaryauth.title": "Welcome to CWB",
+              "primaryauth.submit": "Log In",
+              needhelp: "Can't Log In?",
+              help: "Contact CWB",
+              goback: "Back to Log In",
+              "oform.errorbanner.title":
+                "We found some errors. Please review and try again.",
+              "factor.password": " ",
+              "mfa.backToFactors": "Back to authentication methods",
+              "password.forgot.question.title": "Answer your security question"
+            }
+          },
+          // username: "abc123",
+          // recoveryToken: "dfpDzFzGFj22VklvtMvC",
+
+          helpLinks: { help: "https://www.cwbank.com/en/contact-us" }
+        });
+
+        signIn
+          .showSignInToGetTokens({
+            clientId: clientId,
+            scopes: ["openid", "email", "profile"],
+            redirectUri: redirectUri
+          })
+          .then(function(tokens) {
+            let accessToken = tokens.accessToken;
+            let idToken = tokens.idToken;
+
+            console.log("Access Token: ", accessToken);
+            console.log("ID Token: ", idToken);
+
+            // Authentication occurred
+            if (tokens !== undefined) {
+              // Hide the widget and show logged in message
+              signIn.hide();
+
+              msg2 =
+                "Welcome " +
+                idToken.claims.name +
+                "!\n" +
+                "\nuserid: " +
+                idToken.claims.sub +
+                "\nusername: " +
+                idToken.claims.preferred_username +
+                "\nemail: " +
+                idToken.claims.email +
+                "\nCIF: " +
+                idToken.claims.CIF +
+                "\nPAN: " +
+                idToken.claims.PAN;
+
+              console.log(msg2);
+
+              welcomeMsg.innerText = msg2;
+              welcomeMsg.classList.remove("hidden");
+
+              resultMsg.innerText = msg;
+              resultMsg.classList.remove("hidden");
+            }
+          })
+          .catch(function(err) {
+            console.log("An authentication error occurred: %o", err);
+          });
+        /** Okta Widget v5.4.3 code END **/
+
+        //         signIn.renderEl({ el: "#widget-container" }, function success(res) {
+        //           console.log("enter success...");
+        //           if (res.status && res.status == "FORGOT_PASSWORD_EMAIL_SENT") {
+        //             console.log("Email sent...proceed with login flow.");
+        //             return;
+        //           }
+
+        //           if (res.tokens && res.tokens.accessToken) {
+        //             signIn.hide();
+
+        //             let accessToken = res.tokens.accessToken;
+        //             let idToken = res.tokens.idToken;
+
+        //             console.log("Access Token: ", accessToken);
+        //             console.log("ID Token: ", idToken);
+        //           } else {
+        //             console.log("No tokens? An error may have occurred?");
+        //           }
+        //         });
+      }
+
+      function getTokensFromHash() {
+        // look for tokens in hash
+        if (window.location.hash.length != 0) {
+          //console.log(window.location.hash)
+
+          var hash = window.location.hash.substr(1);
+          //console.log(hash);
+
+          var params = new URLSearchParams(hash);
+          //console.log(params);
+
+          if (params.has("id_token") && params.has("access_token")) {
+            console.log("ID/Access tokens retrieved from URL hash");
+
+            console.log("id_token: ");
+            console.log(params.get("id_token"));
+
+            console.log("access_token: ");
+            console.log(params.get("access_token"));
+
+            return true;
+          }
+        }
+        return false;
+      }
+
+      // if (getTokensFromHash()) {
+      //   resultMsg.innerText = msg;
+      //   resultMsg.classList.remove("hidden");
+      // } else {
+      //   renderOktaWidget();
+      // }
+
+      renderOktaWidget();
+    </script>
+  </body>
+</html>

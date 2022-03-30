@@ -1,0 +1,9 @@
+/** This style sheet hides the Okta sign in header **/
+
+#okta-sign-in.auth-container .okta-sign-in-header {
+  display: none;
+}
+
+#okta-sign-in.auth-container .auth-content {
+  padding-top: 30px;
+}

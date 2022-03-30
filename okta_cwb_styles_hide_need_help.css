@@ -1,0 +1,5 @@
+/** Hide Need help **/
+.js-help
+{
+  display: none !important;
+}
